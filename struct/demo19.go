@@ -19,6 +19,11 @@ type Book struct {
 	bookId int
 }
 
+//为结构体添加方法
+func (book Book) say() {
+	fmt.Println("book:", book)
+}
+
 /*
 结构体作为参数传给函数
 */
@@ -37,6 +42,8 @@ func printBook2(book *Book) {
 func main() {
 	//创建一个Book的结构体，类似Java中的构造创建对象
 	book := Book{"Go", "张三", "编程", 10086}
+	//调用结构体的方法
+	book.say()
 	fmt.Println("book:", book)
 	//创建结构体第二种方式，没有赋值的属性默认为数据类型对应的默认值
 	book2 := Book{name: "Java", author: "李四"}

@@ -102,7 +102,7 @@ func main()  {
 }
 ```
 
-**常量定义**
+**常量定义** 
 
 定义语法：const  常量名  常量类型 = 常量值
 
@@ -139,7 +139,7 @@ Go的数据类型分为了两种，基本数据类型和复杂数据类型
 
 #### 基本数据类型
 
-整数型、浮点型、字符类型、布尔类型、字符串类型
+ 整数型、浮点型、字符类型、布尔类型、字符串类型
 
 ##### 整数型
 
@@ -155,7 +155,7 @@ Go的数据类型分为了两种，基本数据类型和复杂数据类型
 
 - 其他整数类型
 
-![](https://java-imgs.oss-cn-hongkong.aliyuncs.com/2021/1/8/image_51532.png)
+![](https://java-imgs.oss-cn-hongkong.aliyuncs.com/2021/1/8/image_51532.png) 
 
 **友情提醒**
 
@@ -192,7 +192,7 @@ num类型：%!t(int=1) 占用字节数量：8
 
 ##### 浮点型
 
-浮点类型分为了`float32`和`float64`
+ 浮点类型分为了`float32`和`float64`
 
 ![](https://java-imgs.oss-cn-hongkong.aliyuncs.com/2021/1/8/image_54693.png)
 
@@ -747,9 +747,186 @@ map3 map[c:1]
 
 #####  管道
 
+通道（channel）是用来传递数据的一个数据结构。通道可用于两个 goroutine 之间通过传递一个指定类型的值来同步运行和通讯。
+
+<img src="https://img-blog.csdn.net/20180825194734104?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3Nnc2d5NQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="这里写图片描述" style="zoom:80%;float:left" />
+
+**通道类型**
+
+操作符 `<-` 用于指定通道的方向，发送或接收。如果未指定方向，则为双向通道
+
+```go
+//只读通道
+func f(c <- chan int)  {
+}
+//只写通道
+func f(c chan <- int)  {
+}
+//双向通道
+func f(c chan int)  {
+}
+```
+
+**带缓存区的通道**
+
+写通道：直到缓冲区被填满后，写端才会阻塞。
+读通道：缓冲区被读空，读端才会阻塞。
+
+```go
+//定义一个容量为10的通道
+b := make(chan int,10)
+```
+
+ 无缓冲通道： 数据发送端，和数据接收端，必须同时在线。好比打电话。只有等对方接收才会通，要不然只能阻塞
+
+有缓冲通道：数据发送端，发送完数据，立即返回。数据接收端可能立即读取，也有可能延迟处理。不用等对方接收，只需要发送过去就行，好比手机发短信的功能。
+
+```go
+func main()  {
+    //无缓冲区通道
+	c := make(chan int)
+    //有缓冲区通道
+	c1 := make(chan int,10)
+	//带缓冲区的通道不会阻塞
+	c1 <- 123
+	//查看缓冲区中的大小
+	fmt.Printf("len(c1) = %d, cap(c1) = %d, \n", len(c1), cap(c1))
+
+	go func() {
+		c<-33
+		//读channel取走了数据进入非阻塞项目
+		fmt.Println("i am free")
+	}()
+
+	go func() {
+		//让goroutine睡3s
+		time.Sleep(time.Second * 3)
+		//接收channel中的数据
+		fmt.Println("i receiver: ",<-c)
+	}()
+    //防止程序退出
+	for  {
+
+	}
+}
+```
+
 #####  函数
 
 #####  接口
+
+接口是一组方法的集合
+
+#### 接口的定义
+
+
+
+```go
+type Person interface {
+	//声明无返回值的函数
+	Say()
+
+	//带返回值的函数
+	DoSomeThing() (string)
+}
+```
+
+### 接口的实现
+
+```go
+//定义一个结构体Student
+type Student struct {
+	//定义name属性
+	name string
+}
+
+//定义一个结构体Teacher
+type Teacher struct {
+	//定义name属性
+	name string
+}
+
+//为结构体Student实现interface Person的say函数
+func (s Student) Say()  {
+	fmt.Println("student",s.name," say hello")
+}
+
+//为结构体Teacher实现interface Person的say函数
+func (t Teacher) Say()  {
+	fmt.Println("teacher ",t.name," say hello")
+}
+
+func main() {
+	//用interface来接收结构体的变量
+	var p Person = Student{"张三"}
+	var p1 Person = Teacher{"李四"}
+	//不同表现 多态的体现
+	p.Say()
+	p1.Say()
+}
+```
+
+### 接口的继承
+
+接口继承和结构体继承方式一样，都只需要声明一个接口类型，这样就完成了继承工作
+
+```go
+type Worker interface {
+	//继承Person接口
+	Person
+
+	//定义一个函数
+	Do(str string)
+}
+
+type Employee struct {
+	//姓名
+	name string
+
+}
+
+func (e Employee) Say()  {
+	fmt.Printf("员工%v say hello\n",e.name)
+}
+
+func (e Employee) Do(str string)  {
+	fmt.Printf("员工%v正在【%v】\n",e.name,str)
+}
+
+func main() {
+	var worker Worker = Employee{"张三"}
+	worker.Say()
+	worker.Do("吃饭")
+}
+```
+
+#### 空接口
+
+由于没有 `implements` 关键字，所以所有类型都至少实现了 0 个方法，所以 **所有类型都实现了空接口**。这意味着，如果您编写一个函数以 `interface{}` 值作为参数，那么您可以为该函数提供任何值。
+
+```go
+//结构体
+type MyStruct struct {
+	name string
+	age int
+}
+
+//返回值为空接口
+func testReturnEmptyInterface() interface{}  {
+	return MyStruct{"张三",20}
+}
+
+func main() {
+	//空接口，可以用来接收任何类型
+	var i interface{} = 5
+	fmt.Println(i)
+  //调用返回值为interface{}的函数
+	emptyInterface := testReturnEmptyInterface()
+	//强转，如果类型不对会报错
+	var structs = emptyInterface.(MyStruct)
+	fmt.Println(structs)
+}
+```
 
 ### 流程控制
 
@@ -842,7 +1019,7 @@ switch score / 10 {
 
 4.case后面可以带多个值，使用逗号间隔。比如 case 值1,值2...
 
-5.case后面不需要带break
+5.case后面不需要带break 
 
 6.default语句不是必须的，位置也是随意的。
 
@@ -889,7 +1066,7 @@ for index, value := range str {
 
 ##### 关键字
 
-**break**
+**break** 
 
 用法和java里面一样，不过go语言里面能通过加标签中断外层的循环
 
@@ -945,7 +1122,7 @@ i:2, j:2
 ------ok------
 ```
 
-**goto**
+ **goto**
 
 可以无条件的跳到某个标签的未知开始执行代码，通过下面的代码我们能知道，goto关键词下面那句代码直接呗跳过了
 
@@ -974,12 +1151,12 @@ goto跳转过来后执行的代码
 **语法**
 
 func   函数名（形参列表)（返回值类型列表）{
-执行语句..
-return + 返回值列表
+                        执行语句..
+                        return + 返回值列表
 }
 
 ```go
-//demo16
+//demo17
 /*
   两数相加
   无返回值函数
@@ -1102,3 +1279,282 @@ func main() {
 
 
 
+### 结构体
+
+#### 结构体定义
+
+G语言中，数据可以存储同一类型的数据，有时候我们需要用到一个类型存储多个不同类型的数据，这个时候我们就可以用到结构体，可以理解为java里面的类，不过结构体里面只有属性，不能有函数实现
+
+```go
+//demo19
+type Book struct {
+	//名称
+	name string
+	//作者
+	author string
+	//学科
+	subject string
+	//编号
+	bookId int
+}
+
+func main() {
+	//创建一个Book的结构体，所有属性值都必须写，类似Java中的全属性构造方法创建对象
+	book := Book{"Go", "张三", "编程", 10086}
+	fmt.Println("book:",book)
+  //创建结构体第二种方式，没有赋值的属性默认为数据类型对应的默认值，类似Java中的部分属性构造方法创建对象
+	book2 := Book{name: "Java", author: "李四"}
+  //不填任何属性，类似于Java里面的无参构造，然后通过get set方法赋值，不过go语言里面没有get set方法，直接访问赋值就行
+  book3 := Book{}
+	//设置name属性的值
+	book3.name = "C"
+	book3.author = "王五"
+	book3.subject = "编程"
+	fmt.Println("book3.name:",book3.name," author:",book3.author," subject:",book3.subject)
+}
+```
+
+```shell
+book: {Go 张三 编程 10086}
+book2: {Java 李四  0}
+book3.name: C  author: 王五  subject: 编程
+```
+
+#### 为结构体添加函数
+
+```go
+//定义数据结构体
+type Book struct {
+	//名称
+	name string
+	//作者
+	author string
+	//学科
+	subject string
+	//编号
+	bookId int
+}
+
+//为结构体添加函数
+func (book Book) say()  {
+	fmt.Println("book:",book)
+}
+```
+
+#### 结构体的继承
+
+结构体继承结构体，**会继承目标结构体所有的属性和方法，如果属性和函数名相同，会覆盖父结构体的函数和属性，函数覆盖也可以说是重写**，只需要在需要继承的类声明要继承的结构体，不能加上变量名，如果加了，就不是继承了，成了该结构体的一个属性值
+
+```go
+//定义数据结构体  demo21
+type MyBook struct {
+	//名称
+	name string
+	//作者
+	author string
+	//学科
+	subject string
+	//编号
+	bookId int
+}
+
+//为结构体添加方法
+func (book MyBook) say()  {
+	fmt.Println("book:",book)
+}
+
+type MyStudent struct {
+	//继承MyBook,属性和函数都继承了，如果属性一样，继承的类会覆盖父类的属性
+	MyBook //不需要变量名，写了变量名是引用该结构体
+	b MyBook //引用了MyBook这个结构体
+	//姓名
+	name string
+	//年龄
+	age int
+}
+
+//重写say方法
+/*
+func (student MyStudent) say()  {
+	fmt.Println("student:",student)
+}
+*/
+
+func main() {
+	b := MyBook{"Java","詹姆斯搞死你","计算机",1}
+	a := MyStudent{b,b,"张三",18}
+	//直接调用MyBook中的say函数
+	a.say()
+	fmt.Println(a)
+}
+```
+
+#### 结构体作为参数传递给函数
+
+从调用printBook和printBook2我们可以知道，`结构体在传递函数过程中也是值传递`我们要想改变结构体的值，就只能通过传递指针来实现
+
+```go
+/*
+结构体作为参数传给函数  //demo19
+ */
+func printBook(book Book)  {
+	book.name = "haha"
+	fmt.Println("函数内book2:",book)
+}
+/*
+函数接受结构体的指针
+ */
+func printBook2(book *Book)  {
+	book.name = "haha"
+	fmt.Println("函数内book2:",*book)
+}
+
+func main() {
+	book2 := Book{name: "Java", author: "李四"}
+	//结构体作为参数传给函数，传递的是结构体的值
+	printBook(book2)
+	fmt.Println("book2:",book2)
+	//传递指针给函数
+	printBook2(&book2)
+	fmt.Println("book2:",book2)
+}
+```
+
+```shell
+函数内book2: {haha 李四  0}
+book2: {Java 李四  0}
+函数内book2: {haha 李四  0}
+book2: {haha 李四  0}
+```
+
+
+
+### 并发
+
+#### Goroutine
+
+goroutine其实就是协程，它比线程更小，十几个goroutine可能体现在底层就是五六个线程，Go语言内部帮你实现了这些goroutine之间的内存共享。执行goroutine只需极少的栈内存(大概是4~5KB)，当然会根据相应的数据伸缩。也正因为如此，可同时运行成千上万个并发任务。goroutine比thread更易用、更高效、更轻便。
+
+#### Goroutine创建
+
+只需要在调用函数的时候加一个关键词`go`,就可以让该函数和main函数并发执行，开发人员无需了解任何执行细节，调度器会自动将其安排到合适的系统线程上执行。
+
+```go
+func main()  {
+
+	go newTask()
+	fmt.Println("hello main goroutine")
+	time.Sleep(2 * time.Second)
+	fmt.Println("hello main goroutine")
+
+}
+
+func newTask() {
+	time.Sleep(1 * time.Second)
+	fmt.Println("hello goroutine")
+}
+```
+
+**友情提醒** ：main goroutine退出后，其他的goroutine都会退出
+
+#### routine包
+
+- Gosched：让当前goroutine让出执行权限（让出cpu的时间片），调度器安排其他等待的任务运行，在下次获取到时间片的时候，从该代码后开始继续执行
+
+```go
+/*
+			注释 runtime.Gosched() 输出效果为：
+			i am main routine
+			i am main routine
+			i am a goroutine
+			i am a goroutine
+
+			打开后输出效果如下：
+
+			i am a goroutine
+			i am main routine
+			i am a goroutine
+			i am main routine
+ */
+func main()  {
+	//创建一个携程
+	go func(s string) {
+		for i := 0; i < 2; i++ {
+			fmt.Println(s)
+		}
+	}("i am a goroutine")
+
+	for i := 0; i < 2; i++ {
+		//让出cpu的时间片，
+		//runtime.Gosched()
+		fmt.Println("i am main routine")
+	}
+	//防止主携程退出
+	time.Sleep(time.Second)
+}
+```
+
+- Goexit：立即终止当前goroutine的执行，调度器确保所有已注册defer延迟调用被执行
+
+```go
+/*
+不加Goexit执行效果：
+B
+B.defer
+A
+A.defer
+加上Goexit效果
+B.defer
+A.defer
+ */
+func main() {
+	go func() {
+		//最后执行 类似java中try finally中的代码
+		defer fmt.Println("A.defer")
+		//匿名函数
+		func() {
+			defer fmt.Println("B.defer")
+			runtime.Goexit()
+			fmt.Println("B")
+		}()
+		fmt.Println("A")
+	}()
+
+ 	time.Sleep(5 * time.Second)
+}
+```
+
+- GOMAXPROCS：用来设置使用CPU的核数
+
+```go
+func main() {
+	n := runtime.GOMAXPROCS(1) //指定以1核运算
+	//n := runtime.GOMAXPROCS(4) //指定以4核运算
+	fmt.Println("n = ", n)
+
+	for {
+		go fmt.Print(1)
+
+		fmt.Print(0)
+	}
+}
+/*
+00000000000000000000000000000000000000000000000000000000000000000000000000011111
+11111111111111111111111111111111111111111111111111111111111111111111111111111111
+11111111111111111111111111111111111111111111111111111111111111111111111111111111
+11111111111111111111111111110000000000000000000000000000000000000000000000000000
+00000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000000000000000000000000000000000000111111111111111111111111111111111111111
+11111111111111111111111111111111111111111111111111111111111111111111111111111111
+11111111111111111111111111111111111111111111111111111111111111111111111111111111
+11111111111111111111111111111111111111111111111111111100000000000000000000000000
+00000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000000000000000000000000000000000000000000000000000000000000000000001111111
+11111111111111111111111111111111111111111111111111111111111111111111111111111111
+11111111111111111111111111111111111111111111111111111111111111111111111111111111
+11111111111111111111111111111111111111111111111111111111111111111111111111111111
+11111111111100000000000000000000000000000000000000000000000000000000000000000000
+*/
+```

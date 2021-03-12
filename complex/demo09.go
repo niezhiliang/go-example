@@ -16,11 +16,11 @@ func main() {
 
 	//调用a函数
 	a(age)
-	fmt.Printf("函数修改后age的值：%v \n",age)
+	fmt.Printf("函数修改后age的值：%v \n", age)
 
 }
 
-func a(age int)  {
+func a(age int) {
 	age = 20
-	fmt.Println("a函数内的age值：",age)
+	fmt.Println("a函数内的age值：", age)
 }

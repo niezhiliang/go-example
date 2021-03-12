@@ -12,7 +12,7 @@ func main() {
 	//{}必须写，就算只有一行代码也不能省略
 	//单分支
 	if flag {
-		fmt.Println("flag：",flag)
+		fmt.Println("flag：", flag)
 	}
 
 	//加入种子资源库，不然每次生成的随机数都是一样的
@@ -21,17 +21,17 @@ func main() {
 	num := rand.Intn(20)
 	//双分支
 	if num < 10 {
-		fmt.Printf("随机数【%v】小于10",num)
+		fmt.Printf("随机数【%v】小于10", num)
 	} else {
-		fmt.Printf("随机数【%v】大于10",num)
+		fmt.Printf("随机数【%v】大于10", num)
 	}
 
 	//多分支
 	if num < 5 {
-		fmt.Printf("随机数【%v】小于5",num)
+		fmt.Printf("随机数【%v】小于5", num)
 	} else if num < 10 {
-		fmt.Printf("随机数【%v】大于5小于10",num)
+		fmt.Printf("随机数【%v】大于5小于10", num)
 	} else {
-		fmt.Printf("随机数【%v】大于10",num)
+		fmt.Printf("随机数【%v】大于10", num)
 	}
 }
